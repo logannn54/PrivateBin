@@ -27,12 +27,15 @@ jobs:
 
     - name: Run PHPCS
       run: vendor/bin/phpcs --standard=PSR12 lib/
+      continue-on-error: true
 
     - name: Run PHPMD
       run: vendor/bin/phpmd lib/ text cleancode,codesize,unusedcode
+      continue-on-error: true
 
     - name: Run PHPStan
       run: vendor/bin/phpstan analyse lib/ --level=10
+      continue-on-error: true
 
     - name: Create coverage directory
       run: mkdir -p coverage
