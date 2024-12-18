@@ -43,3 +43,8 @@ jobs:
         indicators: true
         output: both
         thresholds: '60 80'
+        
+    - name: Add Code Coverage to GitHub Summary
+      run: |
+          cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+      if: success()
