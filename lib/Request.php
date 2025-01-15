@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PrivateBin
  *
@@ -26,21 +27,21 @@ class Request
      *
      * @const string
      */
-    const MIME_JSON = 'application/json';
+    public const MIME_JSON = 'application/json';
 
     /**
      * MIME type for HTML
      *
      * @const string
      */
-    const MIME_HTML = 'text/html';
+    public const MIME_HTML = 'text/html';
 
     /**
      * MIME type for XHTML
      *
      * @const string
      */
-    const MIME_XHTML = 'application/xhtml+xml';
+    public const MIME_XHTML = 'application/xhtml+xml';
 
     /**
      * Input stream to use for PUT parameter parsing
@@ -48,7 +49,7 @@ class Request
      * @access private
      * @var string
      */
-    private static $_inputStream = 'php://input';
+    private static $inputStream  = 'php://input';
 
     /**
      * Operation to perform
@@ -56,7 +57,7 @@ class Request
      * @access private
      * @var string
      */
-    private $_operation = 'view';
+    private $operation = 'view';
 
     /**
      * Request parameters
@@ -64,7 +65,7 @@ class Request
      * @access private
      * @var array
      */
-    private $_params = array();
+    private $params = array();
 
     /**
      * If we are in a JSON API context
@@ -72,7 +73,7 @@ class Request
      * @access private
      * @var bool
      */
-    private $_isJsonApi = false;
+    private $isJsonApi = false;
 
     /**
      * Return the paste ID of the current paste.
@@ -103,7 +104,7 @@ class Request
     public function __construct()
     {
         // decide if we are in JSON API or HTML context
-        $this->_isJsonApi = $this->_detectJsonRequest();
+        $this->isJsonApi = $this->_detectJsonRequest();
 
         // parse parameters, depending on request type
         switch (array_key_exists('REQUEST_METHOD', $_SERVER) ? $_SERVER['REQUEST_METHOD'] : 'GET') {
@@ -111,40 +112,40 @@ class Request
             case 'PUT':
             case 'POST':
                 // it might be a creation or a deletion, the latter is detected below
-                $this->_operation = 'create';
+                $this->operation = 'create';
                 try {
-                    $this->_params = Json::decode(
-                        file_get_contents(self::$_inputStream)
+                    $this->params = Json::decode(
+                        file_get_contents(self::$inputStream )
                     );
                 } catch (Exception $e) {
-                    // ignore error, $this->_params will remain empty
+                    // ignore error, $this->params will remain empty
                 }
                 break;
             default:
-                $this->_params = $_GET;
+                $this->params = $_GET;
         }
         if (
-            !array_key_exists('pasteid', $this->_params) &&
-            !array_key_exists('jsonld', $this->_params) &&
-            !array_key_exists('link', $this->_params) &&
+            !array_key_exists('pasteid', $this->params) &&
+            !array_key_exists('jsonld', $this->params) &&
+            !array_key_exists('link', $this->params) &&
             array_key_exists('QUERY_STRING', $_SERVER) &&
             !empty($_SERVER['QUERY_STRING'])
         ) {
-            $this->_params['pasteid'] = $this->getPasteId();
+            $this->params['pasteid'] = $this->getPasteId();
         }
 
         // prepare operation, depending on current parameters
-        if (array_key_exists('pasteid', $this->_params) && !empty($this->_params['pasteid'])) {
-            if (array_key_exists('deletetoken', $this->_params) && !empty($this->_params['deletetoken'])) {
-                $this->_operation = 'delete';
-            } elseif ($this->_operation != 'create') {
-                $this->_operation = 'read';
+        if (array_key_exists('pasteid', $this->params) && !empty($this->params['pasteid'])) {
+            if (array_key_exists('deletetoken', $this->params) && !empty($this->params['deletetoken'])) {
+                $this->operation = 'delete';
+            } elseif ($this->operation != 'create') {
+                $this->operation = 'read';
             }
-        } elseif (array_key_exists('jsonld', $this->_params) && !empty($this->_params['jsonld'])) {
-            $this->_operation = 'jsonld';
-        } elseif (array_key_exists('link', $this->_params) && !empty($this->_params['link'])) {
+        } elseif (array_key_exists('jsonld', $this->params) && !empty($this->params['jsonld'])) {
+            $this->operation = 'jsonld';
+        } elseif (array_key_exists('link', $this->params) && !empty($this->params['link'])) {
             if (strpos($this->getRequestUri(), '/shortenviayourls') !== false) {
-                $this->_operation = 'yourlsproxy';
+                $this->operation = 'yourlsproxy';
             }
         }
     }
@@ -157,7 +158,7 @@ class Request
      */
     public function getOperation()
     {
-        return $this->_operation;
+        return $this->operation;
     }
 
     /**
@@ -197,8 +198,8 @@ class Request
      */
     public function getParam($param, $default = '')
     {
-        return array_key_exists($param, $this->_params) ?
-            $this->_params[$param] : $default;
+        return array_key_exists($param, $this->params) ?
+            $this->params[$param] : $default;
     }
 
     /**
@@ -236,7 +237,7 @@ class Request
      */
     public function isJsonApiCall()
     {
-        return $this->_isJsonApi;
+        return $this->isJsonApi;
     }
 
     /**
@@ -246,7 +247,7 @@ class Request
      */
     public static function setInputStream($input)
     {
-        self::$_inputStream = $input;
+        self::$inputStream  = $input;
     }
 
     /**
