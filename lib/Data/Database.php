@@ -208,8 +208,8 @@ class Database extends AbstractData
         try {
             $row = $this->_select(
                 'SELECT * FROM "' . $this->_sanitizeIdentifier('paste') .
-                '" WHERE "dataid" = ?', 
-                array($pasteid), 
+                '" WHERE "dataid" = ?',
+                array($pasteid),
                 true
             );
         } catch (Exception $e) {
@@ -272,12 +272,12 @@ class Database extends AbstractData
     {
         $this->_exec(
             'DELETE FROM "' . $this->_sanitizeIdentifier('paste') .
-            '" WHERE "dataid" = ?', 
+            '" WHERE "dataid" = ?',
             array($pasteid)
         );
         $this->_exec(
             'DELETE FROM "' . $this->_sanitizeIdentifier('comment') .
-            '" WHERE "pasteid" = ?', 
+            '" WHERE "pasteid" = ?',
             array($pasteid)
         );
     }
