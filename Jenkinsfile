@@ -1,42 +1,69 @@
 pipeline {
     agent any
+
     environment {
-        APP_NAME = 'your_app'
-        DOCKER_IMAGE = 'myregistry.com/myapp:latest'
+        PHP_VERSION = "8.2"
     }
+
     stages {
         stage('Checkout') {
             steps {
-                // Récupération du code source depuis le dépôt GitHub
-                checkout scm
+                script {
+                    checkout scm
+                }
             }
         }
-        stage('Build Docker Image') {
+
+        stage('Setup PHP & Dependencies') {
             steps {
-                echo 'Building Docker image...'
-                // Construction de l'image Docker
-                sh 'docker build -t ${APP_NAME}:latest .'
+                sh '''
+                php -v
+                composer install --no-interaction --prefer-dist
+                '''
             }
         }
-        stage('Push Docker Image') {
+
+        stage('Run PHPCS') {
             steps {
-                echo 'Pushing Docker image to registry...'
-                // Tag de l'image Docker et envoi vers le registre
-                sh 'docker tag ${APP_NAME}:latest ${DOCKER_IMAGE}'
-                sh 'docker push ${DOCKER_IMAGE}'
+                script {
+                    def phpcsResult = sh(script: './vendor/bin/phpcs --standard=phpcs.xml lib/', returnStatus: true)
+                    if (phpcsResult != 0) {
+                        error("PHPCS violations found in lib/ directory!")
+                    }
+                }
             }
         }
-        stage('Deploy') {
+
+        stage('Run PHPMD') {
             steps {
-                echo 'Deploying application using Docker on local server...'
-                // Déploiement de l'image Docker sur le serveur local
-                sh """
-                docker pull ${DOCKER_IMAGE} &&
-                docker stop ${APP_NAME} || true &&
-                docker rm ${APP_NAME} || true &&
-                docker run -d --name ${APP_NAME} -p 80:80 ${DOCKER_IMAGE}
-                """
+                script {
+                    def phpmdResult = sh(script: './vendor/bin/phpmd lib/ text phpmd.xml', returnStatus: true)
+                    if (phpmdResult != 0) {
+                        error("PHPMD issues detected in lib/ directory!")
+                    }
+                }
+            }
+        }
+
+        stage('Run PHPStan') {
+            steps {
+                script {
+                    def phpstanResult = sh(script: './vendor/bin/phpstan analyse --configuration=phpstan.neon lib/', returnStatus: true)
+                    if (phpstanResult != 0) {
+                        error("PHPStan found issues in lib/ directory!")
+                    }
+                }
             }
         }
     }
+
+    post {
+        always {
+            echo 'Pipeline terminé.'
+        }
+        failure {
+            echo 'Une ou plusieurs erreurs ont été détectées dans lib/ !'
+        }
+    }
 }
+
