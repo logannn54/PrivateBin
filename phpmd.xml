@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ruleset name="custom_phpmd_ruleset" xmlns="http://pmd.sourceforge.net/ruleset/1.0.0">
+    <description>Custom PHP rules for PHPMD</description>
+
+    <rule ref="cleancode.xml/UnusedPrivateMethod" />
+    <rule ref="cleancode.xml/UnusedPrivateField" />
+    <rule ref="codesize.xml/ExcessiveMethodLength" />
+    <rule ref="codesize.xml/ExcessiveClassLength" />
+    <rule ref="unusedcode.xml/UnusedLocalVariable" />
+    <rule ref="unusedcode.xml/UnusedPrivateMethod" />
+</ruleset>

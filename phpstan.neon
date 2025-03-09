@@ -1,0 +1,13 @@
+parameters:
+    level: 8
+    paths:
+        - lib/
+    autoload_files:
+        - %rootDir%/../vendor/autoload.php
+    excludePaths:
+        - */tests/*
+    checkMissingIterableValueType: false
+    checkMissingArrayMap: false
+
+includes:
+    - vendor/phpstan/phpstan/phpstan.neon
