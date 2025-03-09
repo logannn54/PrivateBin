@@ -10,4 +10,4 @@ parameters:
     checkMissingArrayMap: false
 
 includes:
-    - vendor/phpstan/phpstan/phpstan.neon
+    - phpstan.neon
