@@ -8,6 +8,3 @@ parameters:
         - */tests/*
     checkMissingIterableValueType: false
     checkMissingArrayMap: false
-
-includes:
-    - phpstan.neon
